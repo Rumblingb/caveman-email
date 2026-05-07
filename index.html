@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caveman Email Writer — Make Email Go Ooga Booga</title>
+<meta name="description" content="Paste your email, pick caveman intensity, get caveman version. Save time, sound like ancestor.">
+<style>
+/* ===== RESET & VARS ===== */
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0d1117;--bg2:#161b22;--bg3:#21262d;
+  --accent:#f0883e;--accent2:#e07b2e;
+  --green:#3fb950;--red:#f85149;--blue:#58a6ff;
+  --text:#e6edf3;--text2:#8b949e;--muted:#484f58;
+  --border:#30363d;--radius:8px;--radius-sm:6px;
+  --font:'Segoe UI',system-ui,-apple-system,sans-serif;
+  --shadow:0 4px 24px rgba(0,0,0,.3);
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{
+  font-family:var(--font);background:var(--bg);color:var(--text);
+  min-height:100vh;line-height:1.6;
+}
+.container{max-width:860px;margin:0 auto;padding:16px 20px 40px}
+
+/* ===== HEADER ===== */
+header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 0;border-bottom:1px solid var(--border);margin-bottom:24px;
+  flex-wrap:wrap;gap:12px;
+}
+.logo{font-size:1.4rem;font-weight:800;display:flex;align-items:center;gap:8px}
+.logo .rock{font-size:1.6rem}
+.logo span{color:var(--accent)}
+.premium-btn{
+  background:var(--accent);color:#fff;border:none;padding:10px 22px;
+  border-radius:var(--radius-sm);font-weight:700;font-size:.9rem;
+  cursor:pointer;transition:all .2s;text-decoration:none;display:inline-block;
+}
+.premium-btn:hover{background:var(--accent2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(240,136,62,.25)}
+
+/* ===== SECTIONS ===== */
+.section{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--radius);padding:20px 24px;margin-bottom:20px;
+}
+.section h3{font-size:1rem;margin-bottom:12px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+
+/* ===== STYLE SELECTOR ===== */
+.style-selector{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.style-btn{
+  flex:1;min-width:120px;padding:12px 16px;background:var(--bg3);
+  border:2px solid var(--border);border-radius:var(--radius-sm);
+  color:var(--text);font-weight:600;font-size:.85rem;cursor:pointer;
+  transition:all .2s;text-align:center;
+}
+.style-btn:hover{border-color:var(--accent);background:rgba(240,136,62,.08)}
+.style-btn.active{border-color:var(--accent);background:rgba(240,136,62,.15);color:var(--accent)}
+.style-btn .emoji{display:block;font-size:1.3rem;margin-bottom:4px}
+
+/* ===== TEXTAREAS ===== */
+.textarea-wrap{position:relative}
+textarea{
+  width:100%;min-height:180px;background:var(--bg);color:var(--text);
+  border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:14px 16px;font-family:var(--font);font-size:.9rem;
+  resize:vertical;line-height:1.5;transition:border-color .2s;
+}
+textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(240,136,62,.1)}
+textarea::placeholder{color:var(--muted)}
+.output-area{background:var(--bg3)}
+
+/* ===== STATS BAR ===== */
+.stats-bar{
+  display:flex;gap:16px;flex-wrap:wrap;justify-content:space-between;
+  align-items:center;margin-top:8px;font-size:.8rem;color:var(--text2);
+}
+.stats-bar .stat{padding:4px 10px;background:var(--bg);border-radius:12px}
+.stats-bar .stat strong{color:var(--accent)}
+
+/* ===== BUTTONS ROW ===== */
+.btn-row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.btn{
+  padding:8px 20px;border-radius:var(--radius-sm);font-weight:600;
+  font-size:.85rem;cursor:pointer;transition:all .2s;border:1px solid transparent;
+}
+.btn.copy-btn{background:var(--green);color:#fff}
+.btn.copy-btn:hover{background:#2ea043}
+.btn.sec{background:var(--bg3);color:var(--text);border:1px solid var(--border)}
+.btn.sec:hover{background:var(--bg);border-color:var(--text2)}
+.btn.gen-btn{background:var(--blue);color:#fff}
+.btn.gen-btn:hover{background:#4c8eda}
+
+/* ===== SUBJECT LINE ===== */
+.subject-out{
+  background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:12px 16px;min-height:44px;margin-top:8px;font-weight:600;
+  font-size:.95rem;color:var(--accent);
+}
+
+/* ===== PREMIUM ===== */
+.premium-section{
+  background:linear-gradient(135deg,rgba(240,136,62,.06),rgba(240,136,62,.02));
+  border:1px solid var(--accent);border-radius:var(--radius);padding:32px 24px;
+  margin-bottom:20px;text-align:center;
+}
+.premium-section h2{font-size:1.35rem;margin-bottom:4px}
+.premium-section .price{font-size:2.8rem;font-weight:900;color:var(--accent);margin:8px 0}
+.premium-section .price small{font-size:1rem;font-weight:400;color:var(--text2)}
+.features-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:10px;margin:20px 0;text-align:left;
+}
+.feature-card{
+  display:flex;align-items:flex-start;gap:8px;padding:12px;
+  background:var(--bg2);border-radius:var(--radius-sm);border:1px solid var(--border);
+}
+.feature-card .check{color:var(--green);flex-shrink:0;margin-top:2px}
+.feature-card .f-title{font-weight:600;font-size:.85rem}
+.feature-card .f-desc{font-size:.75rem;color:var(--text2)}
+
+.locked-section{
+  position:relative;overflow:hidden;border:1px dashed var(--accent);
+  background:var(--bg2);border-radius:var(--radius);padding:24px;margin-bottom:20px;
+  min-height:160px;
+}
+.locked-overlay{
+  position:absolute;inset:0;background:rgba(13,17,23,.85);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  z-index:2;gap:8px;
+}
+.locked-overlay .lock-icon{font-size:2rem}
+.locked-overlay p{font-weight:600;color:var(--text2)}
+.unlock-btn{
+  background:var(--accent);color:#fff;border:none;padding:8px 20px;
+  border-radius:var(--radius-sm);font-weight:700;cursor:pointer;font-size:.85rem;
+  transition:all .2s;
+}
+.unlock-btn:hover{background:var(--accent2)}
+
+/* ===== MODAL ===== */
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);z-index:100;align-items:center;justify-content:center}
+.modal.show{display:flex}
+.modal-content{
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);
+  padding:32px 28px;max-width:440px;width:90%;text-align:center;box-shadow:var(--shadow);
+}
+.modal-content h3{font-size:1.3rem;margin-bottom:8px}
+.modal-content .price{font-size:2.5rem;font-weight:900;color:var(--accent);margin:12px 0}
+.modal-content ul{list-style:none;text-align:left;margin:16px 0}
+.modal-content li{padding:6px 0;color:var(--text)}
+.modal-content li::before{content:'✓ ';color:var(--green)}
+
+.fine-print{color:var(--muted);font-size:.75rem;margin-top:12px}
+
+/* ===== TEMPLATES (premium) ===== */
+.template-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.chip{
+  padding:6px 14px;background:var(--bg3);border:1px solid var(--border);
+  border-radius:20px;font-size:.8rem;color:var(--text);cursor:pointer;
+  transition:all .2s;white-space:nowrap;
+}
+.chip:hover{border-color:var(--accent);background:rgba(240,136,62,.1)}
+
+/* ===== BULK ===== */
+.bulk-area{min-height:120px;font-size:.82rem}
+
+/* ===== SIGNATURE GEN ===== */
+.sig-out{
+  background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:12px 16px;min-height:56px;margin-top:8px;font-family:monospace;
+  font-size:.85rem;white-space:pre-wrap;color:var(--text);
+}
+
+/* ===== TOAST ===== */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  background:var(--green);color:#fff;padding:10px 28px;border-radius:24px;
+  font-weight:600;font-size:.85rem;z-index:200;opacity:0;
+  transition:opacity .3s;pointer-events:none;box-shadow:var(--shadow);
+}
+.toast.show{opacity:1}
+
+/* ===== FOOTER ===== */
+footer{
+  text-align:center;padding:24px 0;color:var(--muted);font-size:.8rem;
+  border-top:1px solid var(--border);margin-top:32px;
+}
+footer a{color:var(--accent);text-decoration:none}
+footer a:hover{text-decoration:underline}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:600px){
+  .container{padding:12px 12px 32px}
+  .section{padding:16px 14px}
+  .style-selector{flex-direction:column}
+  .style-btn{min-width:unset}
+  .features-grid{grid-template-columns:1fr}
+  header{flex-direction:column;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<!-- HEADER -->
+<header>
+  <div class="logo"><span class="rock">&#x1FAA8;</span> Caveman <span>Email Writer</span></div>
+  <button class="premium-btn" id="header-premium-btn" onclick="showPremium()">&#x1F512; Unlock Premium — $12</button>
+</header>
+
+<!-- STYLE SELECTOR -->
+<div class="section">
+  <h3>&#x1F3AF; Caveman Intensity</h3>
+  <div class="style-selector" id="style-selector">
+    <button class="style-btn" data-style="business">
+      <span class="emoji">&#x1F454;</span> Business
+    </button>
+    <button class="style-btn active" data-style="casual">
+      <span class="emoji">&#x1F919;</span> Casual
+    </button>
+    <button class="style-btn" data-style="caveman">
+      <span class="emoji">&#x1FAA8;</span> Caveman
+    </button>
+    <button class="style-btn" data-style="ultra">
+      <span class="emoji">&#x1F9D0;</span> Ultra-Caveman
+    </button>
+  </div>
+  <p style="font-size:.8rem;color:var(--text2);margin-top:4px">
+    Business = slightly simplified | Casual = friendly caveman | Caveman = full ooga | Ultra = primal grunt mode
+  </p>
+</div>
+
+<!-- INPUT -->
+<div class="section">
+  <h3>&#x270D;&#xFE0F; Paste Your Email Draft</h3>
+  <div class="textarea-wrap">
+    <textarea id="input-text" placeholder="Paste your normal email here...&#10;&#10;Example: Dear Team, I wanted to follow up on the quarterly report. Could everyone please submit their sections by Friday? Best regards, Sarah"></textarea>
+  </div>
+  <div class="stats-bar">
+    <span class="stat">Chars: <strong id="input-chars">0</strong></span>
+    <span class="stat">Words: <strong id="input-words">0</strong></span>
+    <span class="stat">Tokens ~<strong id="input-tokens">0</strong></span>
+  </div>
+</div>
+
+<!-- OUTPUT -->
+<div class="section">
+  <h3>&#x1FAA8; Caveman Version</h3>
+  <div class="textarea-wrap">
+    <textarea id="output-text" class="output-area" readonly placeholder="Your caveman email will appear here..."></textarea>
+  </div>
+  <div class="stats-bar">
+    <span class="stat">Chars: <strong id="output-chars">0</strong></span>
+    <span class="stat">Words: <strong id="output-words">0</strong></span>
+    <span class="stat">Tokens ~<strong id="output-tokens">0</strong></span>
+    <span class="stat" style="color:var(--green)">Saved: <strong id="saved-tokens">0</strong> tokens</span>
+  </div>
+  <div class="btn-row">
+    <button class="btn copy-btn" onclick="copyOutput()">&#x1F4CB; Copy Caveman Email</button>
+    <button class="btn sec" onclick="clearAll()">&#x1F5D1; Clear</button>
+  </div>
+</div>
+
+<!-- SUBJECT LINE GENERATOR -->
+<div class="section">
+  <h3>&#x1F4E7; Subject Line Generator</h3>
+  <p style="font-size:.8rem;color:var(--text2);margin-bottom:8px">Generate a caveman-style subject line from your email content.</p>
+  <button class="btn gen-btn" onclick="generateSubject()">&#x2728; Generate Subject</button>
+  <div class="subject-out" id="subject-out">Click generate to create a caveman subject line...</div>
+</div>
+
+<!-- PREMIUM SECTION -->
+<div class="premium-section" id="premium-cta">
+  <h2>&#x1F451; Go Premium</h2>
+  <div class="price">$12 <small>one-time</small></div>
+  <p style="color:var(--text2);margin-bottom:16px">Unlock everything. No subscriptions. Pay once, own forever.</p>
+  <div class="features-grid">
+    <div class="feature-card"><span class="check">&#x2714;</span><div><div class="f-title">Save Templates</div><div class="f-desc">Store and reuse your favorite email templates</div></div></div>
+    <div class="feature-card"><span class="check">&#x2714;</span><div><div class="f-title">Bulk Processing</div><div class="f-desc">Convert multiple emails at once</div></div></div>
+    <div class="feature-card"><span class="check">&#x2714;</span><div><div class="f-title">Signature Generator</div><div class="f-desc">Create caveman email signatures</div></div></div>
+    <div class="feature-card"><span class="check">&#x2714;</span><div><div class="f-title">Email Scheduling Tips</div><div class="f-desc">Best times to send for max impact</div></div></div>
+  </div>
+  <a class="premium-btn" href="https://buy.stripe.com/4gMeVfc9Fbg05zG9351oI0d" target="_blank" rel="noopener" style="font-size:1rem;padding:14px 36px">
+    &#x1F512; Unlock Premium — $12
+  </a>
+  <p class="fine-print">Secure payment via Stripe. Instant access after purchase.</p>
+</div>
+
+<!-- PREMIUM LOCKED FEATURES -->
+<div class="locked-section" id="premium-locked">
+  <div class="locked-overlay" id="locked-overlay">
+    <div class="lock-icon">&#x1F512;</div>
+    <p>Premium features — unlock for $12</p>
+    <button class="unlock-btn" onclick="showPremium()">&#x1F513; Unlock Premium</button>
+  </div>
+
+  <!-- Templates (hidden behind overlay until premium) -->
+  <h3>&#x1F4C2; Saved Templates</h3>
+  <div class="template-chips" id="template-chips">
+    <span class="chip" onclick="loadTemplate('follow-up')">&#x1F4CC; Follow Up</span>
+    <span class="chip" onclick="loadTemplate('meeting')">&#x1F91D; Meeting Request</span>
+    <span class="chip" onclick="loadTemplate('thank-you')">&#x1F64F; Thank You</span>
+    <span class="chip" onclick="loadTemplate('apology')">&#x1F614; Apology</span>
+    <span class="chip" onclick="loadTemplate('intro')">&#x1F44B; Introduction</span>
+    <span class="chip" onclick="saveTemplate()" style="border-color:var(--accent);color:var(--accent)">&#x1F4BE; Save Current</span>
+  </div>
+
+  <!-- Bulk Processing (hidden behind overlay) -->
+  <h3 style="margin-top:16px">&#x1F4E6; Bulk Processing</h3>
+  <div class="textarea-wrap">
+    <textarea class="bulk-area" id="bulk-input" placeholder="Paste multiple emails separated by --- on its own line..."></textarea>
+  </div>
+  <div class="btn-row">
+    <button class="btn copy-btn" onclick="processBulk()">&#x2699;&#xFE0F; Process All</button>
+  </div>
+
+  <!-- Signature Generator -->
+  <h3 style="margin-top:16px">&#x270D;&#xFE0F; Signature Generator</h3>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+    <input type="text" id="sig-name" placeholder="Your name" style="flex:1;min-width:120px;padding:8px 12px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:var(--radius-sm)">
+    <input type="text" id="sig-title" placeholder="Title (optional)" style="flex:1;min-width:120px;padding:8px 12px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:var(--radius-sm)">
+    <button class="btn gen-btn" onclick="generateSignature()">Generate</button>
+  </div>
+  <div class="sig-out" id="sig-out">Your caveman signature will appear here...</div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>&#x1FAA8; Caveman Email Writer — Make email go ooga booga. <a href="https://rumblingb.github.io/caveman-email/" target="_blank" rel="noopener">rumblingb.github.io/caveman-email</a></p>
+</footer>
+</div>
+
+<!-- PREMIUM MODAL -->
+<div class="modal" id="premium-modal">
+  <div class="modal-content">
+    <h3>&#x1FAA8; Caveman Email Premium</h3>
+    <p>One payment. Lifetime access. Write caveman emails forever.</p>
+    <div class="price">$12 <small>one-time</small></div>
+    <ul>
+      <li>Save & reuse email templates</li>
+      <li>Bulk processing (unlimited emails)</li>
+      <li>Caveman signature generator</li>
+      <li>Email scheduling tips</li>
+      <li>Support independent dev &#x1FAA8;</li>
+    </ul>
+    <a href="https://buy.stripe.com/4gMeVfc9Fbg05zG9351oI0d" class="premium-btn" style="font-size:1rem;padding:12px 32px;display:inline-block">Buy Now — $12</a>
+    <p class="fine-print">Secure payment via Stripe. Instant access after purchase.</p>
+    <button class="btn sec" onclick="closePremium()" style="margin-top:12px">Maybe Later</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== STATE =====
+const STYLE_KEY = 'cavemail-style';
+const PREMIUM_KEY = 'cavemail-premium';
+
+let currentStyle = localStorage.getItem(STYLE_KEY) || 'casual';
+let isPremium = localStorage.getItem(PREMIUM_KEY) === 'true';
+
+// Templates storage
+const TEMPLATES_KEY = 'cavemail-templates';
+let savedTemplates = JSON.parse(localStorage.getItem(TEMPLATES_KEY) || '{}');
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  // Restore style selection
+  document.querySelectorAll('.style-btn').forEach(btn => {
+    if (btn.dataset.style === currentStyle) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+
+  // Check premium from URL redirect
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('premium') === 'activated') {
+    activatePremium();
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+
+  // Apply premium state
+  if (isPremium) applyPremium();
+
+  // Live preview on input
+  document.getElementById('input-text').addEventListener('input', debounce(liveConvert, 150));
+  updateStats('input-text', 'input-chars', 'input-words', 'input-tokens');
+});
+
+// ===== STYLE SELECTION =====
+document.getElementById('style-selector').addEventListener('click', (e) => {
+  const btn = e.target.closest('.style-btn');
+  if (!btn) return;
+  document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentStyle = btn.dataset.style;
+  localStorage.setItem(STYLE_KEY, currentStyle);
+  liveConvert();
+});
+
+// ===== CAVEMAN TRANSLATION ENGINE =====
+function toCaveman(text, style) {
+  if (!text.trim()) return '';
+
+  let result = text;
+
+  if (style === 'business') {
+    // Slightly simplified, still professional
+    result = result
+      .replace(/\b(I am|I'm)\b/gi, 'I am')
+      .replace(/\b(we are|we're)\b/gi, 'we are')
+      .replace(/\b(it is|it's)\b/gi, 'it is')
+      .replace(/\b(did not|don't|doesn't)\b/gi, 'do not')
+      .replace(/\b(cannot|can't)\b/gi, 'cannot')
+      .replace(/\b(will not|won't)\b/gi, 'will not')
+      .replace(/Dear\s+\w+/gi, 'Hello')
+      .replace(/Best regards,?\s*\w*/gi, 'Thanks,')
+      .replace(/Sincerely,?\s*\w*/gi, 'Thanks,');
+  } else if (style === 'casual') {
+    // Caveman-lite: shorter, friendly, some caveman flavor
+    result = result
+      .replace(/\bI\b/g, 'me')
+      .replace(/\bmy\b/gi, 'me')
+      .replace(/\bwe\b/gi, 'us')
+      .replace(/\bour\b/gi, 'us')
+      .replace(/\bthe\b/gi, '')
+      .replace(/\ba\b(?=\s+\w{3,})/gi, '')
+      .replace(/\ban\b(?=\s+\w{3,})/gi, '')
+      .replace(/\b(please|kindly)\b/gi, 'plz')
+      .replace(/\b(thank you|thanks)\b/gi, 'thx')
+      .replace(/\b(because|cause)\b/gi, 'cuz')
+      .replace(/\b(with)\b/gi, 'wit')
+      .replace(/\b(your|yours)\b/gi, 'ur')
+      .replace(/\b(are)\b/gi, 'r')
+      .replace(/\b(for|four)\b/gi, '4')
+      .replace(/\b(to|too|two)\b/gi, '2')
+      .replace(/\b(you)\b/gi, 'u')
+      .replace(/\.\s+/g, '. ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  } else if (style === 'caveman') {
+    // Full caveman: short sentences, primitive grammar
+    result = result
+      .replace(/\bI\b/g, 'me')
+      .replace(/\bmy\b/gi, 'me')
+      .replace(/\b(mine)\b/gi, 'me')
+      .replace(/\bwe\b/gi, 'us')
+      .replace(/\b(our|ours)\b/gi, 'us')
+      .replace(/\b(they|them)\b/gi, 'them')
+      .replace(/\b(their|theirs)\b/gi, 'them')
+      .replace(/\bthe\b/gi, '')
+      .replace(/\b(a|an)\b(?=\s+\w{3,})/gi, '')
+      .replace(/\b(is|are|am|be|been|being)\b/gi, '')
+      .replace(/\b(was|were)\b/gi, '')
+      .replace(/\b(have|has|had)\b/gi, 'got')
+      .replace(/\b(will|would|shall|should)\b/gi, '')
+      .replace(/\b(can|could)\b/gi, 'can')
+      .replace(/\b(do|does|did)\b/gi, '')
+      .replace(/\b(not|n't)\b/gi, 'no')
+      .replace(/\b(please|kindly)\b/gi, 'plz')
+      .replace(/\b(thank you|thanks)\b/gi, 'thx')
+      .replace(/\b(because|cause)\b/gi, 'cuz')
+      .replace(/\b(with)\b/gi, 'wit')
+      .replace(/\b(your|yours)\b/gi, 'ur')
+      .replace(/\b(for|four)\b/gi, '4')
+      .replace(/\b(to|too|two)\b/gi, '2')
+      .replace(/\b(you)\b/gi, 'u')
+      .replace(/\b(and)\b/gi, '&')
+      .replace(/\b(very|really|quite|extremely|highly)\b/gi, 'much')
+      .replace(/\b(quickly|rapidly|fast)\b/gi, 'fast')
+      .replace(/\b(immediately|right away|asap)\b/gi, 'now')
+      .replace(/Dear\s+\w+/gi, 'Hey')
+      .replace(/Best regards,?\s*\w*/gi, 'Bye,')
+      .replace(/Sincerely,?\s*\w*/gi, 'Bye,')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+  } else if (style === 'ultra') {
+    // Ultra-caveman: ALL CAPS, minimal words, primal
+    result = result.toUpperCase();
+    result = result
+      .replace(/\b(I|ME|MY|MINE)\b/g, 'ME')
+      .replace(/\b(WE|US|OUR|OURS)\b/g, 'US')
+      .replace(/\b(THEY|THEM|THEIR|THEIRS)\b/g, 'THEM')
+      .replace(/\bTHE\b/g, '')
+      .replace(/\b(A|AN)\b(?=\s+\w{3,})/g, '')
+      .replace(/\b(IS|ARE|AM|BE|BEEN|BEING|WAS|WERE)\b/g, '')
+      .replace(/\b(HAVE|HAS|HAD)\b/g, 'GOT')
+      .replace(/\b(WILL|WOULD|SHALL|SHOULD|COULD)\b/g, '')
+      .replace(/\b(NOT|N'T)\b/g, 'NO')
+      .replace(/\b(PLEASE|KINDLY)\b/g, 'PLZ')
+      .replace(/\b(THANK YOU|THANKS)\b/g, 'THX')
+      .replace(/\b(BECAUSE|CAUSE)\b/g, 'CUZ')
+      .replace(/\b(WITH)\b/g, 'WIT')
+      .replace(/\b(YOUR|YOURS)\b/g, 'UR')
+      .replace(/\b(FOR|FOUR)\b/g, '4')
+      .replace(/\b(TO|TOO|TWO)\b/g, '2')
+      .replace(/\b(YOU)\b/g, 'U')
+      .replace(/\b(AND)\b/g, '&')
+      .replace(/\b(VERY|REALLY|QUITE|EXTREMELY|HIGHLY)\b/g, 'MUCH')
+      .replace(/\b(QUICKLY|RAPIDLY|FAST|IMMEDIATELY|ASAP|RIGHT AWAY)\b/g, 'NOW')
+      .replace(/\b(HELLO|DEAR|HI|HEY)\s+\w+/gi, 'YO')
+      .replace(/\bBEST REGARDS,?\s*\w*/gi, 'BYE')
+      .replace(/\bSINCERELY,?\s*\w*/gi, 'BYE')
+      .replace(/[.,:;!?]/g, '!')
+      .replace(/!+/g, '!')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+  }
+
+  // Clean up extra spaces
+  result = result.replace(/\s{2,}/g, ' ').trim();
+
+  return result;
+}
+
+// ===== LIVE CONVERSION =====
+function liveConvert() {
+  const input = document.getElementById('input-text').value;
+  const output = toCaveman(input, currentStyle);
+  document.getElementById('output-text').value = output;
+  updateStats('input-text', 'input-chars', 'input-words', 'input-tokens');
+  updateStatsOutput();
+}
+
+function updateStats(inputId, charsId, wordsId, tokensId) {
+  const text = document.getElementById(inputId).value;
+  const chars = text.length;
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+  const tokens = estimateTokens(text);
+
+  if (charsId) document.getElementById(charsId).textContent = chars.toLocaleString();
+  if (wordsId) document.getElementById(wordsId).textContent = words.toLocaleString();
+  if (tokensId) document.getElementById(tokensId).textContent = tokens.toLocaleString();
+}
+
+function updateStatsOutput() {
+  const text = document.getElementById('output-text').value;
+  const chars = text.length;
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+  const tokens = estimateTokens(text);
+  const inputTokens = estimateTokens(document.getElementById('input-text').value);
+  const saved = inputTokens - tokens;
+
+  document.getElementById('output-chars').textContent = chars.toLocaleString();
+  document.getElementById('output-words').textContent = words.toLocaleString();
+  document.getElementById('output-tokens').textContent = tokens.toLocaleString();
+  document.getElementById('saved-tokens').textContent = saved > 0 ? saved.toLocaleString() : '0';
+}
+
+function estimateTokens(text) {
+  if (!text.trim()) return 0;
+  // Rough estimate: ~4 chars per token
+  return Math.ceil(text.length / 4);
+}
+
+// ===== COPY =====
+function copyOutput() {
+  const output = document.getElementById('output-text');
+  if (!output.value.trim()) {
+    showToast('Nothing to copy! Paste an email first.');
+    return;
+  }
+  navigator.clipboard.writeText(output.value).then(() => {
+    showToast('Copied! Caveman email in clipboard. &#x1FAA8;');
+  }).catch(() => {
+    output.select();
+    document.execCommand('copy');
+    showToast('Copied! &#x1F4CB;');
+  });
+}
+
+// ===== CLEAR =====
+function clearAll() {
+  document.getElementById('input-text').value = '';
+  document.getElementById('output-text').value = '';
+  document.getElementById('input-chars').textContent = '0';
+  document.getElementById('input-words').textContent = '0';
+  document.getElementById('input-tokens').textContent = '0';
+  document.getElementById('output-chars').textContent = '0';
+  document.getElementById('output-words').textContent = '0';
+  document.getElementById('output-tokens').textContent = '0';
+  document.getElementById('saved-tokens').textContent = '0';
+}
+
+// ===== SUBJECT LINE GENERATOR =====
+const subjectStarters = [
+  'Me say:', 'Important thing:', 'U need see:', 'Big news:',
+  'Listen up:', 'Urgent thing:', 'Me think:', 'Question 4 u:',
+  'Quick thing:', 'Me want say:', 'Check this:', 'U got minute?'
+];
+
+function generateSubject() {
+  const input = document.getElementById('input-text').value.trim();
+  if (!input) {
+    showToast('Paste an email first to generate a subject!');
+    return;
+  }
+
+  const words = input.split(/\s+/);
+  const starter = subjectStarters[Math.floor(Math.random() * subjectStarters.length)];
+
+  // Extract key words (longer, meaningful words)
+  const keyWords = words
+    .filter(w => w.length > 3)
+    .filter(w => !/^(that|this|with|from|have|been|were|they|them|their|about|which|when|where|would|could|should)$/i.test(w))
+    .slice(0, 3);
+
+  let subject;
+  if (currentStyle === 'ultra') {
+    subject = starter.toUpperCase() + ' ' + keyWords.join(' ').toUpperCase() + '!';
+  } else if (currentStyle === 'caveman') {
+    subject = starter + ' ' + keyWords.join(' ') + '!';
+  } else if (currentStyle === 'casual') {
+    subject = starter.replace(/me/gi, 'me') + ' ' + keyWords.join(' ');
+  } else {
+    // Business - clean subject
+    const cleanWords = keyWords.map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
+    subject = cleanWords.join(' ') + ' — Quick Update';
+  }
+
+  document.getElementById('subject-out').textContent = subject;
+
+  // Auto-copy subject too
+  navigator.clipboard.writeText(subject).then(() => {
+    showToast('Subject generated & copied! &#x1F4E7;');
+  }).catch(() => {});
+}
+
+// ===== TEMPLATES =====
+const defaultTemplates = {
+  'follow-up': `Hey Team,
+
+Me follow up on report thing. U got updates? Me need by Friday plz.
+
+Thx,
+[Name]`,
+  'meeting': `Hey [Name],
+
+Us need talk about [topic]. U free this week? Me suggest Tuesday 2pm. Let me know.
+
+Thx,
+[Name]`,
+  'thank-you': `Hey [Name],
+
+Thx 4 help wit [thing]. Much appreciated! U did great job.
+
+Best,
+[Name]`,
+  'apology': `Hey [Name],
+
+Me sorry about [thing]. Me mess up. Me fix it now. No happen again.
+
+Thx 4 understand,
+[Name]`,
+  'intro': `Yo [Name],
+
+Me [Your Name]. Me hear good things about u from [Source]. Want connect & chat about [topic].
+
+Let me know if u interested!
+
+Bye,
+[Name]`
+};
+
+function loadTemplate(name) {
+  if (!isPremium) {
+    showPremium();
+    return;
+  }
+  const template = savedTemplates[name] || defaultTemplates[name];
+  if (template) {
+    document.getElementById('input-text').value = template;
+    liveConvert();
+    showToast('Template loaded! &#x1F4C2;');
+  }
+}
+
+function saveTemplate() {
+  if (!isPremium) {
+    showPremium();
+    return;
+  }
+  const email = document.getElementById('input-text').value.trim();
+  if (!email) {
+    showToast('Paste an email first to save as template!');
+    return;
+  }
+  const name = prompt('Template name (e.g. "weekly-update"):');
+  if (!name) return;
+  savedTemplates[name] = email;
+  localStorage.setItem(TEMPLATES_KEY, JSON.stringify(savedTemplates));
+  // Add chip
+  addTemplateChip(name);
+  showToast('Template saved! &#x1F4BE; ' + name);
+}
+
+function addTemplateChip(name) {
+  const container = document.getElementById('template-chips');
+  const existing = container.querySelector(`[data-tpl="${name}"]`);
+  if (existing) return;
+  const chip = document.createElement('span');
+  chip.className = 'chip';
+  chip.dataset.tpl = name;
+  chip.textContent = '📄 ' + name;
+  chip.onclick = () => loadTemplate(name);
+  container.insertBefore(chip, container.lastElementChild);
+}
+
+// Load saved template chips on init
+Object.keys(savedTemplates).forEach(name => addTemplateChip(name));
+
+// ===== BULK PROCESSING =====
+function processBulk() {
+  if (!isPremium) {
+    showPremium();
+    return;
+  }
+  const bulkText = document.getElementById('bulk-input').value.trim();
+  if (!bulkText) {
+    showToast('Paste multiple emails separated by --- first!');
+    return;
+  }
+
+  const emails = bulkText.split(/^---+$/m).map(e => e.trim()).filter(Boolean);
+  if (emails.length === 0) {
+    showToast('No emails found. Separate them with --- on its own line.');
+    return;
+  }
+
+  const results = emails.map((email, i) => {
+    const caveman = toCaveman(email, currentStyle);
+    return `=== Email ${i + 1} ===\n${caveman}\n`;
+  });
+
+  const output = results.join('\n');
+  document.getElementById('output-text').value = output;
+  updateStatsOutput();
+
+  // Copy all
+  navigator.clipboard.writeText(output).then(() => {
+    showToast(`${emails.length} emails processed & copied! &#x1F4E6;`);
+  }).catch(() => {
+    showToast(`${emails.length} emails processed! &#x1F4E6;`);
+  });
+}
+
+// ===== SIGNATURE GENERATOR =====
+function generateSignature() {
+  if (!isPremium) {
+    showPremium();
+    return;
+  }
+  const name = document.getElementById('sig-name').value.trim();
+  const title = document.getElementById('sig-title').value.trim();
+
+  if (!name) {
+    showToast('Enter your name first!');
+    return;
+  }
+
+  const styles = [
+    `-- \n${name}\n${title ? title + '\n' : ''}Caveman Email Writer Pro\n&#x1FAA8; Make email go ooga booga`,
+    `${name} ${title ? '| ' + title + ' ' : ''}| Caveman Certified &#x1FAA8;\nSent from cave. No AI. Just rock.`,
+    `&#x1FAA8; ${name} (${title || 'Caveman Emailer'})\n"Me write good. U read now."`,
+    `-${name}\n ${title || 'Professional Caveman'}\n Proud user of Caveman Email Writer`,
+    `${name.toUpperCase()} — ${(title || 'CAVEMAN EMAILER').toUpperCase()}\nME TYPE. U READ. EMAIL DONE.`
+  ];
+
+  const sig = styles[Math.floor(Math.random() * styles.length)];
+  document.getElementById('sig-out').textContent = sig;
+
+  navigator.clipboard.writeText(sig).then(() => {
+    showToast('Signature generated & copied! &#x270D;&#xFE0F;');
+  }).catch(() => {});
+}
+
+// ===== PREMIUM =====
+function showPremium() {
+  document.getElementById('premium-modal').classList.add('show');
+}
+
+function closePremium() {
+  document.getElementById('premium-modal').classList.remove('show');
+}
+
+document.getElementById('premium-modal').addEventListener('click', function(e) {
+  if (e.target === this) closePremium();
+});
+
+function activatePremium() {
+  isPremium = true;
+  localStorage.setItem(PREMIUM_KEY, 'true');
+  applyPremium();
+  showToast('Premium activated! &#x1F389; Welcome to the caveman club!');
+}
+
+function applyPremium() {
+  document.getElementById('locked-overlay').style.display = 'none';
+  document.getElementById('premium-cta').style.display = 'none';
+  document.getElementById('header-premium-btn').textContent = '&#x2B50; Premium Active';
+  document.getElementById('header-premium-btn').style.background = 'var(--green)';
+  document.getElementById('header-premium-btn').onclick = null;
+}
+
+// ===== TOAST =====
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toast._timeout);
+  toast._timeout = setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+// ===== UTILS =====
+function debounce(fn, ms) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), ms);
+  };
+}
+
+// ===== KEYBOARD SHORTCUT =====
+document.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    e.preventDefault();
+    liveConvert();
+    copyOutput();
+  }
+});
+
+// Auto-convert on load if there's content
+if (document.getElementById('input-text').value.trim()) {
+  liveConvert();
+}
+</script>
+
+</body>
+</html>
